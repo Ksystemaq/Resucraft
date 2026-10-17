@@ -25,7 +25,12 @@ const TEMPLATES: { id: TemplateId; label: string }[] = [
   { id: 'modern', label: 'Modern Clean' },
   { id: 'minimalist', label: 'Minimalist' },
   { id: 'creative', label: 'Creative Banner' },
-  { id: 'student', label: 'Student / Entry' },
+  { id: 'student', label: 'Student / Academic' },
+  { id: 'executive', label: 'Executive Horizon' },
+  { id: 'accent-tab', label: 'Accent Tab Geometric' },
+  { id: 'dual-tone', label: 'Dual-Tone High Contrast' },
+  { id: 'elegant', label: 'Prestige Monogram' },
+  { id: 'timeline', label: 'Tech Timeline Rail' },
 ];
 
 export const StyleCustomizer: React.FC = () => {

@@ -1,4 +1,14 @@
-export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'creative' | 'student';
+export type TemplateId =
+  | 'classic'
+  | 'modern'
+  | 'minimalist'
+  | 'creative'
+  | 'student'
+  | 'executive'
+  | 'accent-tab'
+  | 'dual-tone'
+  | 'elegant'
+  | 'timeline';
 export type FontSize = 'compact' | 'normal' | 'relaxed';
 export type FontFamily = 'Inter' | 'Roboto' | 'Merriweather' | 'Lora';
 

@@ -5,6 +5,11 @@ import { ModernTemplate } from './ModernTemplate';
 import { MinimalistTemplate } from './MinimalistTemplate';
 import { CreativeTemplate } from './CreativeTemplate';
 import { StudentTemplate } from './StudentTemplate';
+import { ExecutiveTemplate } from './ExecutiveTemplate';
+import { AccentTabTemplate } from './AccentTabTemplate';
+import { DualToneTemplate } from './DualToneTemplate';
+import { ElegantTemplate } from './ElegantTemplate';
+import { TimelineTemplate } from './TimelineTemplate';
 
 interface ResumeRendererProps {
   data: ResumeData;
@@ -39,6 +44,16 @@ export const ResumeRenderer: React.FC<ResumeRendererProps> = ({ data, scale = 1 
         return <CreativeTemplate data={data} />;
       case 'student':
         return <StudentTemplate data={data} />;
+      case 'executive':
+        return <ExecutiveTemplate data={data} />;
+      case 'accent-tab':
+        return <AccentTabTemplate data={data} />;
+      case 'dual-tone':
+        return <DualToneTemplate data={data} />;
+      case 'elegant':
+        return <ElegantTemplate data={data} />;
+      case 'timeline':
+        return <TimelineTemplate data={data} />;
       default:
         return <ModernTemplate data={data} />;
     }
@@ -56,4 +71,3 @@ export const ResumeRenderer: React.FC<ResumeRendererProps> = ({ data, scale = 1 
     </div>
   );
 };
-
