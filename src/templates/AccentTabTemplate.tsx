@@ -1,13 +1,13 @@
 import React from 'react';
 import { ResumeData } from '../types/resume';
-import { Mail, Phone, MapPin, Globe, Linkedin, Github, Square } from 'lucide-react';
+import { Square } from 'lucide-react';
 
 interface TemplateProps {
   data: ResumeData;
 }
 
 export const AccentTabTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { basics, experience, education, skills, projects, certifications, customSections, metadata } = data;
+  const { basics, experience, education, skills, projects, certifications, metadata } = data;
   const accentColor = metadata.primaryColor || '#dc2626'; // Default red/burgundy accent
 
   return (

@@ -2,32 +2,168 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────
+   UI/UX Pro Max Design System — CSS Variables
+   Source: Minimalism/Swiss, SaaS palette with Dark Mode support
+───────────────────────────────────────────── */
+
+:root {
+  --color-primary:        #1E3A5F;
+  --color-on-primary:     #FFFFFF;
+  --color-secondary:      #2563EB;
+  --color-on-secondary:   #FFFFFF;
+  --color-accent:         #16A34A;
+  --color-on-accent:      #000000;
+  --color-background:     #F8FAFC;
+  --color-foreground:     #0F172A;
+  --color-card:           #FFFFFF;
+  --color-card-fg:        #0F172A;
+  --color-muted:          #E9EEF5;
+  --color-muted-fg:       #475569;
+  --color-border:         #CBD5E1;
+  --color-destructive:    #DC2626;
+  --color-ring:           #1E3A5F;
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  18px;
+  --radius-2xl: 22px;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 2px 6px -1px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 16px -2px rgb(0 0 0 / 0.10);
+  --shadow-lg: 0 8px 30px -4px rgb(0 0 0 / 0.12);
+}
+
+.dark {
+  --color-primary:        #3b82f6;
+  --color-on-primary:     #FFFFFF;
+  --color-secondary:      #60a5fa;
+  --color-on-secondary:   #090D16;
+  --color-accent:         #22c55e;
+  --color-on-accent:      #000000;
+  --color-background:     #090D16;
+  --color-foreground:     #F1F5F9;
+  --color-card:           #0F172A;
+  --color-card-fg:        #F1F5F9;
+  --color-muted:          #1E293B;
+  --color-muted-fg:       #94A3B8;
+  --color-border:         #334155;
+  --color-destructive:    #EF4444;
+  --color-ring:           #3B82F6;
+  color-scheme: dark;
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-slate-100 text-slate-800 antialiased;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    @apply antialiased transition-colors duration-150;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Accessible focus ring — WCAG 2.2 compliant */
+  *:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+
+  /* Smooth reduced-motion compliance */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-/* Resume Print Styles */
+@layer components {
+  /* Reusable field base */
+  .field-input {
+    @apply w-full text-xs px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900
+           text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500
+           focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition;
+  }
+
+  .field-label {
+    @apply block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1;
+  }
+
+  /* Card surface */
+  .card {
+    @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-sm;
+  }
+
+  /* Primary CTA */
+  .btn-primary {
+    @apply px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold
+           rounded-xl shadow-sm transition-all active:scale-95 focus:ring-2
+           focus:ring-blue-500/40 focus:outline-none flex items-center gap-1.5;
+  }
+
+  /* Secondary / ghost */
+  .btn-secondary {
+    @apply px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold
+           border border-slate-300 dark:border-slate-700 rounded-xl transition-all active:scale-95
+           focus:ring-2 focus:ring-slate-400/30 focus:outline-none flex items-center gap-1.5;
+  }
+}
+
+/* Automatic dark styling defaults for form inputs and surfaces inside .dark */
+.dark input[type="text"]:not(.resume-page *),
+.dark input[type="email"]:not(.resume-page *),
+.dark input[type="tel"]:not(.resume-page *),
+.dark input[type="url"]:not(.resume-page *),
+.dark input[type="date"]:not(.resume-page *),
+.dark textarea:not(.resume-page *),
+.dark select:not(.resume-page *) {
+  background-color: #0f172a;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+.dark input[type="text"]:not(.resume-page *)::placeholder,
+.dark input[type="email"]:not(.resume-page *)::placeholder,
+.dark input[type="tel"]:not(.resume-page *)::placeholder,
+.dark input[type="url"]:not(.resume-page *)::placeholder,
+.dark textarea:not(.resume-page *)::placeholder {
+  color: #64748b;
+}
+
+/* Ensure resume paper remains crisp white during editor and print */
+.resume-page {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* ─── Print styles ───────────────────────────── */
 @media print {
   @page {
-    size: auto;
+    size: A4;
     margin: 10mm;
   }
 
-  body {
+  html, body {
     background: white !important;
     color: black !important;
     padding: 0 !important;
     margin: 0 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color-scheme: light !important;
   }
 
-  header, nav, button, .print\\:hidden, #root > header {
+  header, nav, button, .print\:hidden, #root > header, footer {
     display: none !important;
   }
 
-  /* Isolate printable container */
   .resume-container {
     transform: none !important;
     box-shadow: none !important;
@@ -44,12 +180,13 @@
     padding: 0 !important;
     width: 100% !important;
     min-height: auto !important;
+    page-break-inside: avoid;
+    background: white !important;
+    color: black !important;
   }
 
-  /* Prevent page breaks inside jobs or sections */
   section, .space-y-4 > div, .space-y-3 > div {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 }
-

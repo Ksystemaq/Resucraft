@@ -1,74 +1,114 @@
 import React, { useState } from 'react';
 import { useResume } from '../../context/ResumeContext';
-import { Sparkles, ArrowRight, ArrowLeft, Check, BookOpen, Briefcase, Wrench, UserCheck, GraduationCap } from 'lucide-react';
+import {
+  Sparkles, ArrowRight, ArrowLeft, Check,
+  BookOpen, Briefcase, Wrench, UserCheck, GraduationCap,
+} from 'lucide-react';
 
 interface GuidedWizardProps {
   onComplete: () => void;
   onCancel: () => void;
 }
 
-const COMMON_SKILL_SUGGESTIONS = [
-  'JavaScript', 'TypeScript', 'React', 'Python', 'Node.js', 'SQL', 'Git / GitHub',
-  'Project Management', 'Communication', 'Problem Solving', 'Data Analysis',
-  'Customer Support', 'UI/UX Design', 'Agile / Scrum', 'Team Leadership'
+const SKILL_GROUPS: { label: string; skills: string[] }[] = [
+  {
+    label: 'Programming & Dev',
+    skills: ['JavaScript', 'TypeScript', 'Python', 'React', 'Node.js', 'SQL', 'Java', 'C#', 'PHP', 'REST APIs'],
+  },
+  {
+    label: 'Data & Analytics',
+    skills: ['Data Analysis', 'Excel / Sheets', 'Power BI', 'Tableau', 'Machine Learning', 'R'],
+  },
+  {
+    label: 'Design & Creative',
+    skills: ['UI/UX Design', 'Figma', 'Adobe Photoshop', 'Canva', 'Video Editing', 'Copywriting'],
+  },
+  {
+    label: 'Business & Operations',
+    skills: ['Project Management', 'Agile / Scrum', 'Stakeholder Communication', 'Financial Analysis', 'CRM Tools'],
+  },
+  {
+    label: 'Soft Skills',
+    skills: ['Team Leadership', 'Communication', 'Problem Solving', 'Customer Support', 'Critical Thinking', 'Adaptability'],
+  },
+  {
+    label: 'DevOps & Cloud',
+    skills: ['Git / GitHub', 'Docker', 'AWS', 'CI/CD', 'Linux', 'Kubernetes'],
+  },
 ];
+
+const STEP_META = [
+  { icon: UserCheck,    label: 'Identity',   desc: 'Who you are & how to reach you' },
+  { icon: GraduationCap,label: 'Education',  desc: 'Your academic background' },
+  { icon: Briefcase,    label: 'Experience', desc: 'Jobs, internships, projects' },
+  { icon: Wrench,       label: 'Skills',     desc: 'Your core competencies' },
+  { icon: BookOpen,     label: 'Summary',    desc: 'Your career intro statement' },
+];
+
+const INPUT_CLS =
+  'w-full text-sm px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 ' +
+  'focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500';
+
+const LABEL_CLS = 'block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5';
 
 export const GuidedWizard: React.FC<GuidedWizardProps> = ({ onComplete, onCancel }) => {
   const { data, setData, updateBasics } = useResume();
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Local state for wizard form
-  const [wizardName, setWizardName] = useState(data.basics.fullName || '');
+  // Step 1 — Identity
+  const [wizardName,     setWizardName]     = useState(data.basics.fullName || '');
   const [wizardHeadline, setWizardHeadline] = useState(data.basics.headline || '');
-  const [wizardEmail, setWizardEmail] = useState(data.basics.email || '');
-  const [wizardPhone, setWizardPhone] = useState(data.basics.phone || '');
+  const [wizardEmail,    setWizardEmail]    = useState(data.basics.email    || '');
+  const [wizardPhone,    setWizardPhone]    = useState(data.basics.phone    || '');
   const [wizardLocation, setWizardLocation] = useState(data.basics.location || '');
-  
-  // Summary starter
-  const [summaryChoice, setSummaryChoice] = useState('');
-  
-  // Education
-  const [eduSchool, setEduSchool] = useState('');
-  const [eduDegree, setEduDegree] = useState('');
-  const [eduField, setEduField] = useState('');
-  const [eduYear, setEduYear] = useState('');
 
-  // Experience
-  const [expCompany, setExpCompany] = useState('');
-  const [expRole, setExpRole] = useState('');
-  const [expDates, setExpDates] = useState('');
+  // Step 2 — Education
+  const [eduSchool,  setEduSchool]  = useState('');
+  const [eduDegree,  setEduDegree]  = useState('');
+  const [eduField,   setEduField]   = useState('');
+  const [eduYear,    setEduYear]    = useState('');
+
+  // Step 3 — Experience
+  const [expCompany,     setExpCompany]     = useState('');
+  const [expRole,        setExpRole]        = useState('');
+  const [expDates,       setExpDates]       = useState('');
   const [expAchievement, setExpAchievement] = useState('');
 
-  // Selected skills
+  // Step 4 — Skills
   const [selectedSkills, setSelectedSkills] = useState<string[]>(
-    data.skills.flatMap((s) => s.items).slice(0, 8)
+    data.skills.flatMap((s) => s.items).slice(0, 8),
   );
+
+  // Step 5 — Summary
+  const [summaryChoice, setSummaryChoice] = useState('');
 
   const totalSteps = 5;
 
   const toggleSkill = (skill: string) => {
-    if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter((s) => s !== skill));
-    } else {
-      setSelectedSkills([...selectedSkills, skill]);
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
+    );
+  };
+
+  const handleCancel = () => {
+    if (window.confirm('Cancel the Resume Wizard? Any progress will be lost.')) {
+      onCancel();
     }
   };
 
-  const handleFinishWizard = () => {
-    // Commit basics
+  const handleFinish = () => {
     updateBasics({
       fullName: wizardName || 'New User',
       headline: wizardHeadline || 'Professional Candidate',
-      email: wizardEmail || '',
-      phone: wizardPhone || '',
+      email:    wizardEmail    || '',
+      phone:    wizardPhone    || '',
       location: wizardLocation || '',
-      summary: summaryChoice || data.basics.summary,
+      summary:  summaryChoice  || data.basics.summary,
     });
 
     setData((prev) => {
       const updated = { ...prev };
 
-      // Append education if entered
       if (eduSchool.trim()) {
         updated.education = [
           {
@@ -84,24 +124,24 @@ export const GuidedWizard: React.FC<GuidedWizardProps> = ({ onComplete, onCancel
         ];
       }
 
-      // Append experience if entered
       if (expCompany.trim() || expRole.trim()) {
         updated.experience = [
           {
             id: 'exp-wiz-' + Date.now(),
             company: expCompany || 'Organization',
-            position: expRole || 'Role',
+            position: expRole   || 'Role',
             location: '',
             startDate: expDates || 'Recent',
             endDate: 'Present',
             isCurrent: true,
-            bullets: expAchievement ? [expAchievement] : ['Collaborated with team members to deliver core objectives.'],
+            bullets: expAchievement
+              ? [expAchievement]
+              : ['Collaborated with team members to deliver core objectives.'],
           },
           ...prev.experience,
         ];
       }
 
-      // Update skills
       if (selectedSkills.length > 0) {
         updated.skills = [
           {
@@ -118,305 +158,294 @@ export const GuidedWizard: React.FC<GuidedWizardProps> = ({ onComplete, onCancel
     onComplete();
   };
 
+  const summaryOptions = [
+    `Enthusiastic and motivated ${wizardHeadline || 'professional'} seeking to leverage expertise in ${selectedSkills.slice(0, 3).join(', ') || 'modern problem solving'} to deliver high-impact results.`,
+    `Detail-oriented graduate with strong foundational training in ${eduField || 'practical technical domains'} and hands-on experience delivering collaborative projects.`,
+    `Results-focused practitioner with proven ability to drive operational excellence, adopt rapid methodologies, and communicate clearly across diverse teams.`,
+  ];
+
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      {/* Wizard Header Card */}
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-        {/* Progress Bar */}
-        <div className="bg-slate-100 h-2">
+    <div className="max-w-2xl mx-auto py-10 px-4 transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+
+        {/* ── Top progress bar ── */}
+        <div className="h-1.5 bg-slate-100 dark:bg-slate-800">
           <div
-            className="bg-blue-600 h-full transition-all duration-300"
+            className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-500"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
 
-        <div className="p-6 md:p-8">
-          {/* Top indicator */}
-          <div className="flex items-center justify-between mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
-              <Sparkles className="w-3.5 h-3.5" /> Automatic Resume Assistant
-            </span>
-            <span className="text-xs font-medium text-slate-400">
-              Step {currentStep} of {totalSteps}
-            </span>
+        {/* ── Step bubble indicator ── */}
+        <div className="px-8 pt-6 pb-0 flex items-center justify-between relative">
+          {/* Connecting line */}
+          <div className="absolute left-8 right-8 top-[calc(1.5rem+12px)] h-px bg-slate-200 dark:bg-slate-700 -z-0" />
+
+          {STEP_META.map((s, i) => {
+            const step = i + 1;
+            const done    = step < currentStep;
+            const active  = step === currentStep;
+            const pending = step > currentStep;
+            const Icon = s.icon;
+            return (
+              <div key={step} className="flex flex-col items-center gap-1 z-10 relative">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                    done    ? 'bg-blue-600 border-blue-600 text-white'
+                    : active ? 'bg-white dark:bg-slate-800 border-blue-600 text-blue-600 dark:text-blue-400 shadow-md shadow-blue-100 dark:shadow-none'
+                    : pending ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'
+                    : ''
+                  }`}
+                >
+                  {done ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Icon className="w-4 h-4" />
+                  )}
+                </div>
+                <span
+                  className={`text-[10px] font-semibold hidden sm:block ${
+                    active ? 'text-blue-600 dark:text-blue-400' : done ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 dark:text-slate-500'
+                  }`}
+                >
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="px-8 py-7">
+          {/* ── Step heading ── */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                Step {currentStep} of {totalSteps}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                <Sparkles className="w-2.5 h-2.5" /> AI Assistant
+              </span>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              {STEP_META[currentStep - 1].desc}
+            </h2>
           </div>
 
-          {/* Step 1: Who are you? */}
+          {/* ────────── Step 1: Identity ────────── */}
           {currentStep === 1 && (
-            <div className="space-y-5 animate-in fade-in duration-200">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <UserCheck className="w-5 h-5 text-blue-600" /> Let's start with your identity
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Recruiters need to know who you are and how to reach you for an interview.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">What is your full name? *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Jordan Smith"
-                    value={wizardName}
-                    onChange={(e) => setWizardName(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Full Name *</label>
+                  <input type="text" placeholder="e.g. Jordan Smith" value={wizardName}
+                    onChange={(e) => setWizardName(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">Target Job Title or Professional Field</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Junior Frontend Developer or Marketing Assistant"
-                    value={wizardHeadline}
-                    onChange={(e) => setWizardHeadline(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Target Job Title or Professional Field</label>
+                  <input type="text" placeholder="e.g. Junior Frontend Developer or Marketing Assistant"
+                    value={wizardHeadline} onChange={(e) => setWizardHeadline(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Email Address *</label>
-                  <input
-                    type="email"
-                    placeholder="jordan.smith@example.com"
-                    value={wizardEmail}
-                    onChange={(e) => setWizardEmail(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Email Address *</label>
+                  <input type="email" placeholder="jordan.smith@example.com" value={wizardEmail}
+                    onChange={(e) => setWizardEmail(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    value={wizardPhone}
-                    onChange={(e) => setWizardPhone(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Phone Number</label>
+                  <input type="tel" placeholder="+1 (555) 123-4567" value={wizardPhone}
+                    onChange={(e) => setWizardPhone(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">Location (City, Country)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Seattle, WA or London, UK"
-                    value={wizardLocation}
-                    onChange={(e) => setWizardLocation(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Location (City, Country)</label>
+                  <input type="text" placeholder="e.g. Seattle, WA or London, UK" value={wizardLocation}
+                    onChange={(e) => setWizardLocation(e.target.value)} className={INPUT_CLS} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 2: Education */}
+          {/* ────────── Step 2: Education ────────── */}
           {currentStep === 2 && (
-            <div className="space-y-5 animate-in fade-in duration-200">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-blue-600" /> Your Academic Background
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  What is your highest or most recent educational qualification?
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">College, University, or High School</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. University of Washington"
-                    value={eduSchool}
-                    onChange={(e) => setEduSchool(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>College, University, or High School</label>
+                  <input type="text" placeholder="e.g. University of Washington" value={eduSchool}
+                    onChange={(e) => setEduSchool(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Degree / Diploma</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Bachelor of Science"
-                    value={eduDegree}
-                    onChange={(e) => setEduDegree(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Degree / Diploma</label>
+                  <input type="text" placeholder="e.g. Bachelor of Science" value={eduDegree}
+                    onChange={(e) => setEduDegree(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Major / Specialization</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Computer Science, Business"
-                    value={eduField}
-                    onChange={(e) => setEduField(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Major / Specialization</label>
+                  <input type="text" placeholder="e.g. Computer Science, Business" value={eduField}
+                    onChange={(e) => setEduField(e.target.value)} className={INPUT_CLS} />
                 </div>
-
                 <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">Graduation Year or Expected Date</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 2025 or 2021 – 2025"
-                    value={eduYear}
-                    onChange={(e) => setEduYear(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Graduation Year or Expected Date</label>
+                  <input type="text" placeholder="e.g. 2025 or 2021–2025" value={eduYear}
+                    onChange={(e) => setEduYear(e.target.value)} className={INPUT_CLS} />
                 </div>
               </div>
+              <p className="text-[11px] text-slate-400 italic">
+                Skip this step if you prefer to add education manually in the editor.
+              </p>
             </div>
           )}
 
-          {/* Step 3: Experience */}
+          {/* ────────── Step 3: Experience ────────── */}
           {currentStep === 3 && (
-            <div className="space-y-5 animate-in fade-in duration-200">
+            <div className="space-y-4 animate-in fade-in duration-200">
               <div>
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-blue-600" /> Recent Experience or Key Project
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Add a job, internship, volunteer role, or student project you're proud of.
-                </p>
+                <label className={LABEL_CLS}>Company / Organization / Project Name</label>
+                <input type="text" placeholder="e.g. TechCorp or University Capstone Project"
+                  value={expCompany} onChange={(e) => setExpCompany(e.target.value)} className={INPUT_CLS} />
               </div>
-
-              <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Company / Organization / Project Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. TechCorp or University Capstone Project"
-                    value={expCompany}
-                    onChange={(e) => setExpCompany(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Your Role / Title</label>
+                  <input type="text" placeholder="e.g. Intern, Assistant, Developer"
+                    value={expRole} onChange={(e) => setExpRole(e.target.value)} className={INPUT_CLS} />
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-medium text-slate-700 mb-1">Your Role / Title</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Intern, Assistant, Developer"
-                      value={expRole}
-                      onChange={(e) => setExpRole(e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-medium text-slate-700 mb-1">Timeline</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 2023 - Present"
-                      value={expDates}
-                      onChange={(e) => setExpDates(e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">What was your standout contribution or achievement?</label>
-                  <textarea
-                    rows={3}
-                    placeholder="e.g. Collaborated with a team of 4 to design and deploy an online ordering portal that boosted sales by 20%..."
-                    value={expAchievement}
-                    onChange={(e) => setExpAchievement(e.target.value)}
-                    className="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                  <label className={LABEL_CLS}>Timeline</label>
+                  <input type="text" placeholder="e.g. 2023 – Present"
+                    value={expDates} onChange={(e) => setExpDates(e.target.value)} className={INPUT_CLS} />
                 </div>
               </div>
+              <div>
+                <label className={LABEL_CLS}>Your standout contribution or achievement</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Collaborated with a team of 4 to design and deploy an ordering portal that boosted sales by 20%..."
+                  value={expAchievement}
+                  onChange={(e) => setExpAchievement(e.target.value)}
+                  className={INPUT_CLS + ' resize-none'}
+                />
+              </div>
+              <p className="text-[11px] text-slate-400 italic">
+                Skip if you prefer to add experience manually. You can add multiple roles in the editor.
+              </p>
             </div>
           )}
 
-          {/* Step 4: Skills Selection */}
+          {/* ────────── Step 4: Skills ────────── */}
           {currentStep === 4 && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <Wrench className="w-5 h-5 text-blue-600" /> Select Your Core Skills
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Click the skills you possess to add them to your resume automatically.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                {COMMON_SKILL_SUGGESTIONS.map((skill) => {
-                  const isSelected = selectedSkills.includes(skill);
-                  return (
-                    <button
-                      key={skill}
-                      type="button"
-                      onClick={() => toggleSkill(skill)}
-                      className={`text-xs px-3.5 py-2 rounded-full font-medium transition flex items-center gap-1.5 ${
-                        isSelected
-                          ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-300'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
-                    >
-                      {isSelected && <Check className="w-3.5 h-3.5" />}
-                      {skill}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Step 5: Summary & Synthesis */}
-          {currentStep === 5 && (
-            <div className="space-y-5 animate-in fade-in duration-200">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-blue-600" /> Ready to Generate Your Draft
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  We'll compile your answers into a clean, editable template. Choose a career intro statement:
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  `Enthusiastic and motivated ${wizardHeadline || 'professional'} seeking to leverage skills in ${selectedSkills.slice(0, 3).join(', ') || 'modern problem solving'} to deliver high-impact results.`,
-                  `Detail-oriented graduate with strong foundational training in ${eduField || 'practical technical domains'} and hands-on experience delivering collaborative projects.`,
-                  `Results-focused practitioner with proven ability to drive operational excellence, learn rapid methodologies, and communicate clearly across teams.`
-                ].map((option, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => setSummaryChoice(option)}
-                    className={`p-3.5 rounded-lg border text-xs cursor-pointer transition ${
-                      summaryChoice === option
-                        ? 'border-blue-600 bg-blue-50/60 ring-1 ring-blue-500'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <p className="text-slate-800 leading-relaxed font-normal">{option}</p>
+              <p className="text-xs text-slate-500">
+                Click skills to add them to your resume. Selected:{' '}
+                <span className="font-semibold text-blue-600">{selectedSkills.length}</span>
+              </p>
+              <div className="space-y-4 max-h-[320px] overflow-y-auto pr-1">
+                {SKILL_GROUPS.map((group) => (
+                  <div key={group.label}>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                      {group.label}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.skills.map((skill) => {
+                        const isSelected = selectedSkills.includes(skill);
+                        return (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSkill(skill)}
+                            className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150 flex items-center gap-1 ${
+                              isSelected
+                                ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-200 dark:ring-blue-900 ring-offset-1'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 shrink-0" />}
+                            {skill}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
+          {/* ────────── Step 5: Summary ────────── */}
+          {currentStep === 5 && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Choose a career intro statement — it will appear at the top of your resume. You can edit it later.
+              </p>
+
+              {/* Mini resume card preview */}
+              {wizardName && (
+                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs space-y-1">
+                  <p className="font-bold text-slate-800 dark:text-white text-sm">{wizardName}</p>
+                  {wizardHeadline && <p className="text-blue-600 dark:text-blue-400 font-medium">{wizardHeadline}</p>}
+                  <div className="flex flex-wrap gap-3 text-slate-500 dark:text-slate-400 text-[11px]">
+                    {wizardEmail    && <span>✉ {wizardEmail}</span>}
+                    {wizardPhone    && <span>📞 {wizardPhone}</span>}
+                    {wizardLocation && <span>📍 {wizardLocation}</span>}
+                  </div>
+                  {selectedSkills.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {selectedSkills.slice(0, 5).map((s) => (
+                        <span key={s} className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[10px] font-medium">{s}</span>
+                      ))}
+                      {selectedSkills.length > 5 && (
+                        <span className="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-medium">
+                          +{selectedSkills.length - 5} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2.5">
+                {summaryOptions.map((option, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSummaryChoice(option)}
+                    className={`w-full text-left p-4 rounded-xl border text-xs cursor-pointer transition-all duration-150 leading-relaxed ${
+                      summaryChoice === option
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 ring-2 ring-blue-200 dark:ring-blue-900 text-slate-800 dark:text-slate-200'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/40 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
+                    <div className="flex gap-2.5">
+                      <span className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors ${
+                        summaryChoice === option ? 'border-blue-600 bg-blue-600' : 'border-slate-300 dark:border-slate-600'
+                      }`}>
+                        {summaryChoice === option && <Check className="w-3 h-3 text-white" />}
+                      </span>
+                      <p>{option}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Navigation ── */}
+          <div className="mt-8 pt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400
+                           hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition
+                           focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back
               </button>
             ) : (
               <button
                 type="button"
-                onClick={onCancel}
-                className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800"
+                onClick={handleCancel}
+                className="px-4 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800
+                           rounded-lg transition focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
                 Cancel Wizard
               </button>
@@ -426,15 +455,21 @@ export const GuidedWizard: React.FC<GuidedWizardProps> = ({ onComplete, onCancel
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm flex items-center gap-1.5 transition"
+                className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white
+                           bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition
+                           focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
                 Next Step <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
                 type="button"
-                onClick={handleFinishWizard}
-                className="px-6 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-md flex items-center gap-1.5 transition"
+                onClick={handleFinish}
+                className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-white
+                           bg-gradient-to-r from-emerald-600 to-teal-600
+                           hover:from-emerald-700 hover:to-teal-700
+                           rounded-xl shadow-md transition
+                           focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
               >
                 <Sparkles className="w-4 h-4" /> Generate & Open Editor
               </button>

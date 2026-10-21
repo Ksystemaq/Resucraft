@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useResume } from '../context/ResumeContext';
 import { TemplateId } from '../types/resume';
-import { Check, ArrowRight, Sparkles, Filter, Eye } from 'lucide-react';
+import { Check, ArrowRight, Sparkles, Eye, Search, ShieldCheck, X } from 'lucide-react';
 import { ResumeRenderer } from '../templates/ResumeRenderer';
 
 interface TemplateOption {
@@ -20,7 +20,7 @@ const TEMPLATE_CARDS: TemplateOption[] = [
     id: 'executive',
     name: 'Executive Horizon',
     category: 'corporate',
-    badge: 'Popular for Executives',
+    badge: 'Popular for Leadership',
     description: 'Dark contact ribbon bar, prominent candidate header, and structured left-title grid sections.',
     bestFor: 'Managers, Directors, Retail Executives, Operations',
     previewBg: 'from-slate-800 to-slate-900',
@@ -127,220 +127,240 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelect, onLa
   const { data, updateMetadata } = useResume();
   const currentTemplate = data.metadata.templateId;
   const [filter, setFilter] = useState<'all' | 'corporate' | 'modern' | 'creative' | 'entry'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [previewTemplateId, setPreviewTemplateId] = useState<TemplateId | null>(null);
 
-  const filteredTemplates = TEMPLATE_CARDS.filter(
-    (card) => filter === 'all' || card.category === filter
-  );
+  const filteredTemplates = useMemo(() => {
+    return TEMPLATE_CARDS.filter((card) => {
+      const matchesCategory = filter === 'all' || card.category === filter;
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        card.name.toLowerCase().includes(q) ||
+        card.description.toLowerCase().includes(q) ||
+        card.bestFor.toLowerCase().includes(q) ||
+        card.badge.toLowerCase().includes(q);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [filter, searchQuery]);
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
+    <div className="max-w-7xl mx-auto py-12 px-4 transition-colors">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto mb-8">
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          Explore Resume Designs
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-3 border border-blue-200/80 dark:border-blue-800">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>10 Recruiter-Approved Layouts</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Find Your Perfect Resume Design
         </h2>
-        <p className="text-slate-600 text-sm mt-2">
-          From modern tech sidebars to executive ribbon headers and classical prestige layouts. Pick your layout and switch anytime without re-typing.
+        <p className="text-slate-600 dark:text-slate-400 text-sm mt-2.5 leading-relaxed">
+          Switch designs at any time with one click. Your data automatically formats to fit the chosen template with zero re-typing.
         </p>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-        {[
-          { id: 'all', label: 'All Designs (10)' },
-          { id: 'corporate', label: 'Corporate & Executive' },
-          { id: 'modern', label: 'Modern & Clean' },
-          { id: 'creative', label: 'Creative & High Impact' },
-          { id: 'entry', label: 'Students & Grads' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setFilter(tab.id as any)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${
-              filter === tab.id
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Search and Filters Bar */}
+      <div className="max-w-3xl mx-auto mb-8 space-y-4">
+        {/* Search Input */}
+        <div className="relative">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search templates by role (e.g. Software, Director, Finance, Minimalist)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none shadow-2xs transition"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* Category Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {[
+            { id: 'all', label: 'All Templates (10)' },
+            { id: 'corporate', label: 'Executive & Corporate' },
+            { id: 'modern', label: 'Modern Tech' },
+            { id: 'creative', label: 'Creative & Impact' },
+            { id: 'entry', label: 'Students & Grads' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setFilter(tab.id as any)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${
+                filter === tab.id
+                  ? 'bg-blue-600 text-white shadow-2xs font-bold'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/90 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Mode callout */}
-      <div className="mb-10 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
+      {/* Wizard Banner Callout */}
+      <div className="mb-10 bg-gradient-to-r from-blue-50/90 via-indigo-50/80 to-sky-50/90 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 border border-blue-200/80 dark:border-blue-900/60 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs transition-colors">
+        <div className="flex items-center gap-4 text-center sm:text-left">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Want a guided questionnaire instead?</h3>
-            <p className="text-xs text-slate-600 mt-0.5">
-              Answer 5 quick questions in Automatic Mode and we'll format your first draft automatically.
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Want step-by-step guidance?</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+              Answer 5 simple questions and our automatic wizard will synthesize your first draft for you.
             </p>
           </div>
         </div>
+
         <button
+          type="button"
           onClick={onLaunchWizard}
-          className="whitespace-nowrap px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5"
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 shrink-0"
         >
-          Try Automatic Wizard <ArrowRight className="w-3.5 h-3.5" />
+          <span>Launch Guided Wizard</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Gallery Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTemplates.map((card) => {
-          const isSelected = currentTemplate === card.id;
+      {/* Template Cards Grid */}
+      {filteredTemplates.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <p className="text-sm text-slate-500 dark:text-slate-400">No templates found matching "{searchQuery}".</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('');
+              setFilter('all');
+            }}
+            className="mt-3 text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline"
+          >
+            Reset Filters
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTemplates.map((card) => {
+            const isSelected = currentTemplate === card.id;
 
-          return (
-            <div
-              key={card.id}
-              className={`group bg-white rounded-xl border-2 transition-all overflow-hidden flex flex-col justify-between hover:shadow-xl ${
-                isSelected ? 'border-blue-600 ring-2 ring-blue-100 shadow-md' : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              {/* Card Thumbnail Mock */}
-              <div className={`h-48 bg-gradient-to-br ${card.previewBg} p-5 flex flex-col justify-between relative`}>
-                <div className="flex justify-between items-start z-10">
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/95 text-slate-800 shadow-2xs">
-                    {card.badge}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewTemplateId(card.id)}
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-white text-slate-700 flex items-center justify-center shadow-xs"
-                      title="Quick Preview"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
+            return (
+              <div
+                key={card.id}
+                className={`bg-white dark:bg-slate-900 rounded-2xl border overflow-hidden transition-all duration-200 flex flex-col group ${
+                  isSelected
+                    ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-lg'
+                    : 'border-slate-200/90 dark:border-slate-800 shadow-2xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
+              >
+                {/* Visual Thumbnail Bar with wireframe preview */}
+                <div
+                  className={`h-44 bg-gradient-to-br ${card.previewBg} p-4 flex flex-col justify-between relative overflow-hidden`}
+                >
+                  {/* Badge */}
+                  <div className="flex items-center justify-between z-10">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/90 text-slate-800 shadow-2xs backdrop-blur-xs">
+                      {card.badge}
+                    </span>
                     {isSelected && (
-                      <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm">
-                        <Check className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Selected
                       </span>
                     )}
                   </div>
-                </div>
 
-                {/* Wireframe Mock Depictions */}
-                <div className="bg-white/90 backdrop-blur-xs p-3 rounded-lg shadow-xs space-y-1.5 border border-white/60">
-                  {card.wireframeType === 'executive' && (
-                    <>
-                      <div className="w-full h-2 bg-slate-800 rounded-xs mb-1"></div>
-                      <div className="w-2/5 h-2.5 bg-slate-900 rounded-xs"></div>
-                      <div className="grid grid-cols-12 gap-1 pt-1">
-                        <div className="col-span-4 h-1.5 bg-slate-400 rounded-xs"></div>
-                        <div className="col-span-8 h-1.5 bg-slate-300 rounded-xs"></div>
-                      </div>
-                    </>
-                  )}
+                  {/* Wireframe Mockup Lines */}
+                  <div className="bg-white/95 rounded-lg p-3 shadow-md border border-white/60 space-y-1.5 max-w-[210px] mx-auto w-full transition-transform group-hover:scale-105 duration-200">
+                    <div className="w-1/2 h-2.5 bg-slate-800 rounded-xs mb-2"></div>
+                    <div className="w-full h-1 bg-slate-300 rounded-xs"></div>
+                    <div className="w-3/4 h-1 bg-slate-300 rounded-xs"></div>
+                    <div className="w-full h-1 bg-slate-200 rounded-xs mt-2"></div>
+                    <div className="w-5/6 h-1 bg-slate-200 rounded-xs"></div>
+                  </div>
 
-                  {card.wireframeType === 'accent-tab' && (
-                    <>
-                      <div className="w-12 h-1 bg-red-600 rounded-full mx-auto mb-1"></div>
-                      <div className="flex gap-2 items-center">
-                        <div className="w-5 h-6 bg-red-200 rounded-xs shrink-0"></div>
-                        <div className="w-full space-y-1">
-                          <div className="w-1/2 h-2 bg-red-600 rounded-xs"></div>
-                          <div className="w-3/4 h-1 bg-slate-300 rounded-xs"></div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {card.wireframeType === 'dual-tone' && (
-                    <>
-                      <div className="w-full h-2.5 bg-blue-900 rounded-xs mb-1"></div>
-                      <div className="flex gap-2">
-                        <div className="w-1/3 h-10 bg-blue-900 rounded-xs"></div>
-                        <div className="w-2/3 space-y-1">
-                          <div className="w-3/4 h-1.5 bg-slate-400 rounded-xs"></div>
-                          <div className="w-full h-1 bg-slate-300 rounded-xs"></div>
-                          <div className="w-4/5 h-1 bg-slate-300 rounded-xs"></div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {card.wireframeType === 'elegant' && (
-                    <>
-                      <div className="w-4 h-4 rounded-full border border-amber-800 mx-auto mb-1 flex items-center justify-center text-[7px] text-amber-800 font-serif">M</div>
-                      <div className="w-2/5 h-2 bg-stone-800 rounded-xs mx-auto"></div>
-                      <div className="w-full h-1 bg-stone-300 rounded-xs mt-1"></div>
-                    </>
-                  )}
-
-                  {card.wireframeType === 'timeline' && (
-                    <>
-                      <div className="w-1/2 h-2.5 bg-sky-600 rounded-xs mb-1"></div>
-                      <div className="pl-3 border-l-2 border-sky-400 space-y-1">
-                        <div className="w-3/4 h-1.5 bg-slate-700 rounded-xs"></div>
-                        <div className="w-full h-1 bg-slate-300 rounded-xs"></div>
-                      </div>
-                    </>
-                  )}
-
-                  {!['executive', 'accent-tab', 'dual-tone', 'elegant', 'timeline'].includes(card.wireframeType) && (
-                    <>
-                      <div className="w-1/3 h-2.5 bg-slate-700 rounded-xs"></div>
-                      <div className="w-2/3 h-1.5 bg-slate-400 rounded-xs"></div>
-                      <div className="w-full h-1 bg-slate-200 rounded-xs mt-2"></div>
-                      <div className="w-4/5 h-1 bg-slate-200 rounded-xs"></div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Card Details */}
-              <div className="p-5 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition">
-                    {card.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{card.description}</p>
-
-                  <div className="mt-3 pt-3 border-t border-slate-100">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                      Best For:
-                    </span>
-                    <span className="text-xs text-slate-700 font-medium">{card.bestFor}</span>
+                  {/* Quick Inspect Button on Hover */}
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTemplateId(card.id)}
+                      className="px-3.5 py-1.5 bg-white text-slate-900 text-xs font-bold rounded-lg shadow-md flex items-center gap-1.5 hover:bg-slate-100 transition transform hover:scale-105"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Quick Preview</span>
+                    </button>
                   </div>
                 </div>
 
-                <div className="mt-5 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      updateMetadata({ templateId: card.id });
-                      onSelect(card.id);
-                    }}
-                    className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {isSelected ? 'Selected (Go to Editor)' : 'Choose Template'}
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                {/* Card Content Details */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
+                      {card.name}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                      {card.description}
+                    </p>
+
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                        Best For
+                      </span>
+                      <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">{card.bestFor}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateMetadata({ templateId: card.id });
+                        onSelect(card.id);
+                      }}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <span>{isSelected ? 'Open Live Editor' : 'Use Template'}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTemplateId(card.id)}
+                      className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                      title="Inspect full preview"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Quick Live Preview Modal */}
       {previewTemplateId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <span className="font-bold text-slate-800 text-sm">
-                Template Preview: {TEMPLATE_CARDS.find((c) => c.id === previewTemplateId)?.name}
-              </span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div className="px-6 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-slate-900 dark:text-white text-sm">
+                  {TEMPLATE_CARDS.find((c) => c.id === previewTemplateId)?.name}
+                </span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:inline">• Live Sample Inspection</span>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -349,21 +369,21 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelect, onLa
                     setPreviewTemplateId(null);
                     onSelect(previewTemplateId);
                   }}
-                  className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs hover:bg-blue-700"
+                  className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-xs hover:bg-blue-700 transition"
                 >
                   Apply & Open Editor
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewTemplateId(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200 text-xs"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition"
                 >
-                  ✕
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-slate-200/60 flex justify-center">
+            <div className="flex-1 overflow-y-auto p-6 bg-slate-200/60 dark:bg-slate-950 flex justify-center">
               <div className="shadow-2xl">
                 <ResumeRenderer
                   data={{
