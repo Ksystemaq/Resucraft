@@ -70,7 +70,7 @@ export const ModeSelectModal: React.FC<ModeSelectModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Start with a blank template and fill in your own details at your own pace.
+                Choose a template design first, then fill in your own details at your own pace.
               </p>
             </div>
 
@@ -80,7 +80,7 @@ export const ModeSelectModal: React.FC<ModeSelectModalProps> = ({
               onClick={onManual}
               className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5"
             >
-              Choose Manual →
+              Pick Template (Manual) →
             </button>
           </div>
 
@@ -102,7 +102,7 @@ export const ModeSelectModal: React.FC<ModeSelectModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Answer a few quick questions and we'll help structure your resume automatically.
+                Choose a template design first, then answer quick guided questions to build your resume.
               </p>
             </div>
 
@@ -112,7 +112,7 @@ export const ModeSelectModal: React.FC<ModeSelectModalProps> = ({
               onClick={onAuto}
               className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5"
             >
-              Start Wizard →
+              Pick Template (Auto Wizard) →
             </button>
           </div>
         </div>

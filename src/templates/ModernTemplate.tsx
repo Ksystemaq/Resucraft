@@ -11,9 +11,9 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#0284c7';
 
   return (
-    <div className="resume-page modern-template text-slate-800 bg-white font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 flex flex-col md:flex-row">
+    <div className="resume-page modern-template text-slate-800 bg-white font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 flex flex-row">
       {/* Left Sidebar */}
-      <aside className="w-full md:w-[32%] bg-slate-50 border-r border-slate-200 p-6 flex flex-col gap-6 print:w-[32%] print:bg-slate-50">
+      <aside className="w-[32%] shrink-0 bg-slate-50 border-r border-slate-200 p-6 flex flex-col gap-6 print:w-[32%] print:bg-slate-50">
         {/* Photo if enabled */}
         {metadata.showPhoto && basics.photoUrl && (
           <div className="flex justify-center">
@@ -156,7 +156,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="w-full md:w-[68%] p-6 md:p-8 flex flex-col gap-6 print:w-[68%]">
+      <main className="w-[68%] shrink-0 p-6 md:p-8 flex flex-col gap-6 print:w-[68%]">
         {/* Name & Headline Header */}
         <header>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">

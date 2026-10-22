@@ -11,9 +11,19 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#1e293b';
 
   return (
-    <div className="resume-page classic-template text-slate-800 bg-white p-8 md:p-10 font-serif leading-relaxed max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
+    <div className="resume-page classic-template text-slate-800 bg-white p-8 md:p-10 font-serif leading-relaxed w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
       {/* Header */}
       <header className="border-b-2 pb-4 mb-6 text-center" style={{ borderColor: accentColor }}>
+        {metadata.showPhoto && basics.photoUrl && (
+          <div className="flex justify-center mb-3">
+            <img
+              src={basics.photoUrl}
+              alt={basics.fullName}
+              className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
+              style={{ borderColor: accentColor }}
+            />
+          </div>
+        )}
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-1">
           {basics.fullName || 'Your Name'}
         </h1>

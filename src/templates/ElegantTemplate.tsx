@@ -21,7 +21,7 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ data }) => {
     : 'RC';
 
   return (
-    <div className="resume-page elegant-template text-stone-800 bg-[#fdfdfc] p-8 md:p-12 font-serif max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 border border-stone-200">
+    <div className="resume-page elegant-template text-stone-800 bg-[#fdfdfc] p-8 md:p-12 font-serif w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 border border-stone-200">
       {/* Decorative Outer Thin Frame */}
       <div className="border border-stone-300 p-6 md:p-8 relative">
         {/* Monogram Badge & Candidate Title Header */}

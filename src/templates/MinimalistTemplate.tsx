@@ -10,30 +10,40 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#334155';
 
   return (
-    <div className="resume-page minimalist-template text-slate-800 bg-white p-10 font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
+    <div className="resume-page minimalist-template text-slate-800 bg-white p-10 font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
       {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-4xl font-light tracking-tight text-slate-900 mb-1">
-          {basics.fullName || 'Your Name'}
-        </h1>
-        {basics.headline && (
-          <p className="text-sm uppercase tracking-widest text-slate-500 mb-4">{basics.headline}</p>
-        )}
+      <header className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-4xl font-light tracking-tight text-slate-900 mb-1">
+            {basics.fullName || 'Your Name'}
+          </h1>
+          {basics.headline && (
+            <p className="text-sm uppercase tracking-widest text-slate-500 mb-4">{basics.headline}</p>
+          )}
 
-        <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500 font-light">
-          {basics.email && <span>{basics.email}</span>}
-          {basics.phone && <span>• {basics.phone}</span>}
-          {basics.location && <span>• {basics.location}</span>}
-          {basics.website && (
-            <span>• <a href={basics.website} target="_blank" rel="noreferrer" className="hover:underline">{basics.website.replace(/^https?:\/\//, '')}</a></span>
-          )}
-          {basics.linkedin && (
-            <span>• <a href={basics.linkedin.startsWith('http') ? basics.linkedin : `https://${basics.linkedin}`} target="_blank" rel="noreferrer" className="hover:underline">LinkedIn</a></span>
-          )}
-          {basics.github && (
-            <span>• <a href={basics.github.startsWith('http') ? basics.github : `https://${basics.github}`} target="_blank" rel="noreferrer" className="hover:underline">GitHub</a></span>
-          )}
+          <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500 font-light">
+            {basics.email && <span>{basics.email}</span>}
+            {basics.phone && <span>• {basics.phone}</span>}
+            {basics.location && <span>• {basics.location}</span>}
+            {basics.website && (
+              <span>• <a href={basics.website} target="_blank" rel="noreferrer" className="hover:underline">{basics.website.replace(/^https?:\/\//, '')}</a></span>
+            )}
+            {basics.linkedin && (
+              <span>• <a href={basics.linkedin.startsWith('http') ? basics.linkedin : `https://${basics.linkedin}`} target="_blank" rel="noreferrer" className="hover:underline">LinkedIn</a></span>
+            )}
+            {basics.github && (
+              <span>• <a href={basics.github.startsWith('http') ? basics.github : `https://${basics.github}`} target="_blank" rel="noreferrer" className="hover:underline">GitHub</a></span>
+            )}
+          </div>
         </div>
+
+        {metadata.showPhoto && basics.photoUrl && (
+          <img
+            src={basics.photoUrl}
+            alt={basics.fullName}
+            className="w-20 h-20 rounded-full object-cover border border-slate-300 shrink-0"
+          />
+        )}
       </header>
 
       {/* Summary */}

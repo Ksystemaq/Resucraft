@@ -11,7 +11,7 @@ export const AccentTabTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#dc2626'; // Default red/burgundy accent
 
   return (
-    <div className="resume-page accent-tab-template text-slate-800 bg-white font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 border-t-8 relative" style={{ borderColor: accentColor }}>
+    <div className="resume-page accent-tab-template text-slate-800 bg-white font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 border-t-8 relative" style={{ borderColor: accentColor }}>
       {/* Top Geometric Tab Notch */}
       <div
         className="w-24 h-3 mx-auto rounded-b-md"

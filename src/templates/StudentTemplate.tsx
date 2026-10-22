@@ -11,9 +11,19 @@ export const StudentTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#059669'; // Emerald default
 
   return (
-    <div className="resume-page student-template text-slate-800 bg-white p-8 md:p-10 font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
+    <div className="resume-page student-template text-slate-800 bg-white p-8 md:p-10 font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
       {/* Header */}
       <header className="text-center pb-5 mb-5 border-b-2" style={{ borderColor: accentColor }}>
+        {metadata.showPhoto && basics.photoUrl && (
+          <div className="flex justify-center mb-3">
+            <img
+              src={basics.photoUrl}
+              alt={basics.fullName}
+              className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
+              style={{ borderColor: accentColor }}
+            />
+          </div>
+        )}
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">
           {basics.fullName || 'Your Name'}
         </h1>

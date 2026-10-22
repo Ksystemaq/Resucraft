@@ -30,10 +30,15 @@ import {
   BookOpen,
   Copy,
   Check,
-  X
+  X,
+  Download
 } from 'lucide-react';
 
-export const ResumeBuilder: React.FC = () => {
+interface ResumeBuilderProps {
+  onOpenPreflight?: () => void;
+}
+
+export const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ onOpenPreflight }) => {
   const { data, updateMetadata } = useResume();
   const [activeTab, setActiveTab] = useState<'basics' | 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom'>('basics');
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
@@ -307,6 +312,18 @@ export const ResumeBuilder: React.FC = () => {
                   <Eye className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                   <span className="hidden sm:inline">Preview</span>
                 </button>
+
+                {onOpenPreflight && (
+                  <button
+                    type="button"
+                    onClick={onOpenPreflight}
+                    className="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-95"
+                    title="Export print-ready PDF"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export PDF</span>
+                  </button>
+                )}
               </div>
             </div>
 

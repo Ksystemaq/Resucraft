@@ -11,7 +11,7 @@ export const DualToneTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#1e3a8a'; // Deep Navy default
 
   return (
-    <div className="resume-page dual-tone-template text-slate-800 bg-white font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 flex flex-col">
+    <div className="resume-page dual-tone-template text-slate-800 bg-white font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0 flex flex-col">
       {/* Full-Width Top Dark Header Bar */}
       <header
         className="px-8 py-6 text-white print:bg-slate-900"
@@ -28,10 +28,10 @@ export const DualToneTemplate: React.FC<TemplateProps> = ({ data }) => {
       </header>
 
       {/* Two-Column Split Body */}
-      <div className="flex-1 flex flex-col md:flex-row">
+      <div className="flex-1 flex flex-row">
         {/* Left Dark / Contrast Sidebar */}
         <aside
-          className="w-full md:w-[35%] p-6 text-white flex flex-col gap-6 print:w-[35%] print:bg-slate-900"
+          className="w-[35%] shrink-0 p-6 text-white flex flex-col gap-6 print:w-[35%] print:bg-slate-900"
           style={{ backgroundColor: accentColor }}
         >
           {/* Photo if enabled */}
@@ -160,7 +160,7 @@ export const DualToneTemplate: React.FC<TemplateProps> = ({ data }) => {
         </aside>
 
         {/* Right Clean White Main Content */}
-        <main className="w-full md:w-[65%] p-6 md:p-8 flex flex-col gap-6 print:w-[65%]">
+        <main className="w-[65%] shrink-0 p-6 md:p-8 flex flex-col gap-6 print:w-[65%]">
           {/* Summary */}
           {basics.summary && (
             <section>

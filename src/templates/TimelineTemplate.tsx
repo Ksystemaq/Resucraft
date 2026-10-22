@@ -11,19 +11,29 @@ export const TimelineTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#0284c7'; // Sky / Teal / Indigo
 
   return (
-    <div className="resume-page timeline-template text-slate-800 bg-white p-8 md:p-10 font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
+    <div className="resume-page timeline-template text-slate-800 bg-white p-8 md:p-10 font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
       {/* Modern Header with Border Accent */}
       <header className="pb-6 mb-6 border-b border-slate-200">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
-              {basics.fullName || 'Your Name'}
-            </h1>
-            {basics.headline && (
-              <p className="text-sm font-semibold mt-1" style={{ color: accentColor }}>
-                {basics.headline}
-              </p>
+        <div className="flex flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {metadata.showPhoto && basics.photoUrl && (
+              <img
+                src={basics.photoUrl}
+                alt={basics.fullName}
+                className="w-20 h-20 rounded-full object-cover border-2 shadow-sm shrink-0"
+                style={{ borderColor: accentColor }}
+              />
             )}
+            <div>
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+                {basics.fullName || 'Your Name'}
+              </h1>
+              {basics.headline && (
+                <p className="text-sm font-semibold mt-1" style={{ color: accentColor }}>
+                  {basics.headline}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Contact Badges */}

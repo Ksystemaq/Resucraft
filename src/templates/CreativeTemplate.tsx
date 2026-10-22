@@ -11,10 +11,10 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#7c3aed'; // default purple/violet
 
   return (
-    <div className="resume-page creative-template text-slate-800 bg-white font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
+    <div className="resume-page creative-template text-slate-800 bg-white font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
       {/* Top Banner Header */}
       <header
-        className="p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 print:bg-slate-900"
+        className="p-8 text-white flex flex-row items-center justify-between gap-6 print:bg-slate-900"
         style={{ backgroundColor: accentColor }}
       >
         <div className="flex items-center gap-5">

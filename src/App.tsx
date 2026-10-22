@@ -8,12 +8,14 @@ import { ResumeBuilder } from './components/ResumeBuilder';
 import { GuidedWizard } from './components/Wizard/GuidedWizard';
 import { PreflightModal } from './components/PreflightModal';
 import { ModeSelectModal } from './components/ModeSelectModal';
-import { FileText, ShieldCheck, Github } from 'lucide-react';
+import { ThemeToggle } from './components/ThemeToggle';
+import { ShieldCheck, Github } from 'lucide-react';
 
 type AppView = 'home' | 'templates' | 'builder' | 'wizard';
 
 const MainApp: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
+  const [creationMode, setCreationMode] = useState<'manual' | 'auto'>('manual');
   const [isPreflightOpen, setIsPreflightOpen] = useState(false);
   const [isModeModalOpen, setIsModeModalOpen] = useState(false);
   const { data } = useResume();
@@ -47,13 +49,24 @@ const MainApp: React.FC = () => {
         {currentView === 'home' && (
           <Hero
             onStartManual={() => setIsModeModalOpen(true)}
-            onBrowseTemplates={() => setCurrentView('templates')}
+            onBrowseTemplates={() => {
+              setCreationMode('manual');
+              setCurrentView('templates');
+            }}
           />
         )}
 
         {currentView === 'templates' && (
           <TemplateGallery
-            onSelect={() => setCurrentView('builder')}
+            creationMode={creationMode}
+            onChangeMode={(mode) => setCreationMode(mode)}
+            onSelect={() => {
+              if (creationMode === 'auto') {
+                setCurrentView('wizard');
+              } else {
+                setCurrentView('builder');
+              }
+            }}
             onLaunchWizard={() => setCurrentView('wizard')}
           />
         )}
@@ -61,11 +74,13 @@ const MainApp: React.FC = () => {
         {currentView === 'wizard' && (
           <GuidedWizard
             onComplete={() => setCurrentView('builder')}
-            onCancel={() => setCurrentView('builder')}
+            onCancel={() => setCurrentView('templates')}
           />
         )}
 
-        {currentView === 'builder' && <ResumeBuilder />}
+        {currentView === 'builder' && (
+          <ResumeBuilder onOpenPreflight={() => setIsPreflightOpen(true)} />
+        )}
       </main>
 
       {/* Preflight Modal */}
@@ -80,29 +95,50 @@ const MainApp: React.FC = () => {
         onClose={() => setIsModeModalOpen(false)}
         onManual={() => {
           setIsModeModalOpen(false);
-          setCurrentView('builder');
+          setCreationMode('manual');
+          setCurrentView('templates');
         }}
         onAuto={() => {
           setIsModeModalOpen(false);
-          setCurrentView('wizard');
+          setCreationMode('auto');
+          setCurrentView('templates');
         }}
       />
 
       {/* ── Footer ── */}
       <footer className="bg-slate-900 border-t border-slate-800 print:hidden" aria-label="Site footer">
         <div className="max-w-7xl mx-auto px-6 py-10">
-          {/* Top row: logo + nav */}
+          {/* Top row: logo + nav + theme */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             {/* Brand */}
             <button
               onClick={() => setCurrentView('home')}
-              className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-lg"
+              className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg text-left"
               aria-label="Go to homepage"
             >
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-md group-hover:bg-blue-500 transition">
-                <FileText className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-sm font-bold text-white tracking-tight group-hover:text-blue-300 transition">
+              <svg
+                className="w-6 h-6 text-teal-400 group-hover:scale-105 transition-transform"
+                viewBox="0 0 28 28"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id="footerTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#2dd4bf" />
+                    <stop offset="100%" stopColor="#0d9488" />
+                  </linearGradient>
+                </defs>
+                <rect x="7" y="11" width="2.4" height="10" rx="1.2" fill="url(#footerTealGrad)" />
+                <rect x="11.6" y="7" width="2.4" height="14" rx="1.2" fill="url(#footerTealGrad)" />
+                <rect x="16.2" y="3" width="2.4" height="18" rx="1.2" fill="url(#footerTealGrad)" />
+                <path
+                  d="M4.5 13.5V20.5C4.5 22.7 6.3 24.5 8.5 24.5H19.5C21.7 24.5 23.5 22.7 23.5 20.5V15"
+                  stroke="url(#footerTealGrad)"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="text-base font-bold text-white tracking-tight group-hover:text-teal-300 transition">
                 ResumeCraft
               </span>
             </button>
@@ -122,7 +158,7 @@ const MainApp: React.FC = () => {
                   onClick={() => setCurrentView(view)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition
                     ${currentView === view
-                      ? 'bg-slate-700 text-white'
+                      ? 'bg-slate-700 text-white font-bold'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800'
                     }`}
                 >
@@ -145,6 +181,8 @@ const MainApp: React.FC = () => {
               </span>
             </div>
             <div className="flex items-center gap-4">
+              <ThemeToggle variant="dropdown" />
+              <span className="text-slate-600">·</span>
               <a
                 href="https://github.com"
                 target="_blank"
@@ -155,8 +193,6 @@ const MainApp: React.FC = () => {
                 <Github className="w-3.5 h-3.5" />
                 <span className="text-xs">Open Source</span>
               </a>
-              <span className="text-slate-600">·</span>
-              <span className="text-slate-600 text-[11px]">Made with ResumeCraft ❤</span>
             </div>
           </div>
         </div>

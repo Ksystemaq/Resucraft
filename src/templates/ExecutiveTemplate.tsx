@@ -11,7 +11,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
   const accentColor = metadata.primaryColor || '#1e293b';
 
   return (
-    <div className="resume-page executive-template text-slate-800 bg-white font-sans max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
+    <div className="resume-page executive-template text-slate-800 bg-white font-sans w-[800px] min-w-[800px] max-w-[800px] mx-auto min-h-[1050px] shadow-sm print:shadow-none print:p-0 print:m-0">
       {/* Top Dark Contact Ribbon Bar */}
       <div
         className="px-8 py-3 text-white flex flex-wrap items-center justify-between gap-y-1 text-xs font-medium print:bg-slate-900"
@@ -57,14 +57,24 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
       {/* Main Container */}
       <div className="p-8 md:p-10">
         {/* Candidate Name & Title Header */}
-        <header className="mb-8 pb-4 border-b border-slate-300">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
-            {basics.fullName || 'Your Name'}
-          </h1>
-          {basics.headline && (
-            <p className="text-sm font-semibold text-slate-600 mt-1 uppercase tracking-wider" style={{ color: accentColor }}>
-              {basics.headline}
-            </p>
+        <header className="mb-8 pb-4 border-b border-slate-300 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+              {basics.fullName || 'Your Name'}
+            </h1>
+            {basics.headline && (
+              <p className="text-sm font-semibold text-slate-600 mt-1 uppercase tracking-wider" style={{ color: accentColor }}>
+                {basics.headline}
+              </p>
+            )}
+          </div>
+          {metadata.showPhoto && basics.photoUrl && (
+            <img
+              src={basics.photoUrl}
+              alt={basics.fullName}
+              className="w-20 h-20 rounded-full object-cover border-2 shadow-sm shrink-0"
+              style={{ borderColor: accentColor }}
+            />
           )}
         </header>
 
