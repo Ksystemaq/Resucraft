@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Check } from 'lucide-react';
+import { ResumeCardCarousel } from './ResumeCardCarousel';
 
 const features = [
   {
@@ -123,84 +124,13 @@ export const Hero: React.FC<HeroProps> = ({ onStartManual, onBrowseTemplates }) 
           </div>
         </div>
 
-        {/* ── Right: Resume Card Mockup ── */}
+        {/* ── Right: Animated Resume Card Carousel ── */}
         <div className="flex justify-center lg:justify-end">
-          <div className="relative w-[340px] sm:w-[380px]">
-            {/* Glow backdrop */}
-            <div className="absolute -inset-4 bg-gradient-to-br from-indigo-400/20 to-purple-400/10 rounded-3xl blur-2xl" />
-
-            {/* Card */}
-            <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 rotate-1 hover:rotate-0 transition-transform duration-500">
-              {/* Purple sidebar */}
-              <div className="flex">
-                <div className="w-20 bg-gradient-to-b from-indigo-600 to-purple-700 p-3 flex flex-col items-center gap-4 shrink-0">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm mt-2 border-2 border-white/40">
-                    JD
-                  </div>
-                  {/* Timeline dots */}
-                  {['2024-06', '2023-02', '2019-01'].map((yr) => (
-                    <div key={yr} className="text-center">
-                      <div className="w-2 h-2 rounded-full bg-white/60 mx-auto mb-0.5" />
-                      <span className="text-[7px] text-white/70 font-medium">{yr}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Content area */}
-                <div className="p-4 flex-1 space-y-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">John Doe</h3>
-                    <div className="space-y-0.5 mt-1">
-                      {['New York, NY 10001', '+1 (555) 123-4567', 'john.doe@email.com'].map((line) => (
-                        <div key={line} className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
-                          <span className="text-[8px] text-slate-500">{line}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Summary lines */}
-                  <div className="space-y-1">
-                    {[100, 90, 95, 70].map((w, i) => (
-                      <div key={i} className="h-1 bg-slate-100 rounded-full" style={{ width: `${w}%` }} />
-                    ))}
-                  </div>
-
-                  {/* Skills block */}
-                  <div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <div className="w-2 h-2 bg-indigo-600 rounded-sm" />
-                      <span className="text-[8px] font-bold text-slate-700 uppercase tracking-wide">Skills</span>
-                    </div>
-                    {['React & TypeScript', 'Node.js & Express', 'Database Design', 'Team Leadership'].map((s) => (
-                      <div key={s} className="flex items-center gap-1 mb-0.5">
-                        <span className="text-[7px] text-indigo-600">•</span>
-                        <span className="text-[8px] text-slate-600">{s}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Work history */}
-                  <div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <div className="w-2 h-2 bg-indigo-600 rounded-sm" />
-                      <span className="text-[8px] font-bold text-slate-700 uppercase tracking-wide">Work History</span>
-                    </div>
-                    <p className="text-[8px] font-bold text-slate-800">Senior Software Engineer</p>
-                    <p className="text-[7px] text-slate-500">Tech Corp, New York</p>
-                    <div className="mt-1 space-y-0.5">
-                      {['Increased application performance by 43%', 'Led team of 5 developers'].map((b) => (
-                        <div key={b} className="flex items-start gap-1">
-                          <span className="text-[7px] text-slate-400 mt-px">•</span>
-                          <span className="text-[7px] text-slate-500">{b}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="relative w-[340px] sm:w-[420px]">
+            {/* Soft glow backdrop */}
+            <div className="absolute -inset-6 bg-gradient-to-br from-indigo-400/20 via-purple-300/10 to-emerald-200/10 rounded-3xl blur-3xl pointer-events-none" />
+            <div className="relative pt-4 pb-10">
+              <ResumeCardCarousel />
             </div>
           </div>
         </div>
