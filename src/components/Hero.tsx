@@ -126,20 +126,8 @@ export const Hero: React.FC<HeroProps> = ({ onStartManual, onBrowseTemplates }) 
 
         {/* ── Right: Animated Resume Card Carousel ── */}
         <div className="flex justify-center lg:justify-end">
-          <div className="relative">
-            {/* Mint green backdrop bubble — matches the reference illustration */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: '-32px -24px',
-                background: 'radial-gradient(ellipse 90% 80% at 50% 60%, #c8f0de 0%, #d8f5e8 55%, transparent 100%)',
-                borderRadius: '48px',
-                pointerEvents: 'none',
-              }}
-            />
-            <div style={{ position: 'relative', paddingTop: 48, paddingBottom: 32 }}>
-              <ResumeCardCarousel />
-            </div>
+          <div style={{ paddingTop: 48, paddingBottom: 32 }}>
+            <ResumeCardCarousel />
           </div>
         </div>
 
