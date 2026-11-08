@@ -1,271 +1,364 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 
-// ── Fake resume card data ──────────────────────────────────────────────────────
-const cards = [
-  {
-    id: 1,
-    initials: 'AK',
-    name: 'Aisha Khan',
-    role: 'Product Designer',
-    color: '#7c6fe0', // avatar ring color
-    bg: '#c7f4e8',   // card bg tint
-    lines: [100, 85, 92, 70, 60],
-    tags: ['Figma', 'UX Research', 'Prototyping'],
-  },
-  {
-    id: 2,
-    initials: 'MR',
-    name: 'Marcus Reed',
-    role: 'Software Engineer',
-    color: '#6366f1',
-    bg: '#c7f4e8',
-    lines: [100, 90, 80, 95, 65],
-    tags: ['React', 'TypeScript', 'Node.js'],
-  },
-  {
-    id: 3,
-    initials: 'SL',
-    name: 'Sofia Lin',
-    role: 'Data Scientist',
-    color: '#a855f7',
-    bg: '#c7f4e8',
-    lines: [100, 75, 88, 60, 50],
-    tags: ['Python', 'ML', 'SQL'],
-  },
-];
-
-// ── Individual mini resume card ────────────────────────────────────────────────
-interface CardProps {
-  card: (typeof cards)[number];
-  position: 'left' | 'center' | 'right';
+// ── Inject CSS keyframes once per page load ───────────────────────────────────
+const KF_ID = 'rcc-keyframes-v2';
+function injectKeyframes() {
+  if (typeof document === 'undefined' || document.getElementById(KF_ID)) return;
+  const s = document.createElement('style');
+  s.id = KF_ID;
+  s.innerHTML = `
+    @keyframes rcc-rise {
+      from { opacity: 0; transform: translateY(80px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes rcc-fc {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-11px); }
+    }
+    @keyframes rcc-fs {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-6px); }
+    }
+  `;
+  document.head.appendChild(s);
 }
 
-const MiniResumeCard: React.FC<CardProps> = ({ card, position }) => {
-  const isCenter = position === 'center';
+// ── Shared avatar palette ─────────────────────────────────────────────────────
+const P = {
+  hair:  '#2e3c58',
+  face:  '#c8aa88',
+  body:  '#3d4f72',
+  body2: '#5a7a9a',
+  blush: 'rgba(210,130,120,0.42)',
+  stroke:'#a07850',
+};
 
-  const positionStyles: React.CSSProperties = {
-    position: 'absolute',
-    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-    transformOrigin: 'center bottom',
-    ...(position === 'left' && {
-      left: '-18%',
-      top: '8%',
-      transform: 'scale(0.72) rotateY(14deg) rotateZ(-3deg)',
-      zIndex: 1,
-      opacity: 0.65,
-      filter: 'brightness(0.9)',
-    }),
-    ...(position === 'center' && {
-      left: '50%',
-      top: '0%',
-      transform: 'translateX(-50%) scale(1) rotateY(0deg) rotateZ(0deg)',
-      zIndex: 10,
-      opacity: 1,
-      filter: 'brightness(1)',
-    }),
-    ...(position === 'right' && {
-      right: '-18%',
-      top: '8%',
-      transform: 'scale(0.72) rotateY(-14deg) rotateZ(3deg)',
-      zIndex: 1,
-      opacity: 0.65,
-      filter: 'brightness(0.9)',
-    }),
-  };
+// Female avatar (long hair)
+const AvatarFemale = ({ sz }: { sz: number }) => (
+  <svg width={sz} height={sz} viewBox="0 0 60 62" fill="none">
+    {/* long hair bulk */}
+    <ellipse cx="30" cy="20" rx="15.5" ry="17" fill={P.hair} />
+    {/* face */}
+    <ellipse cx="30" cy="25" rx="12" ry="12.5" fill={P.face} />
+    {/* hair side strands */}
+    <rect x="14" y="22" width="6.5" height="20" rx="3.2" fill={P.hair} />
+    <rect x="39.5" y="22" width="6.5" height="20" rx="3.2" fill={P.hair} />
+    {/* eyes */}
+    <ellipse cx="25.5" cy="24.5" rx="1.9" ry="2.1" fill={P.hair} />
+    <ellipse cx="34.5" cy="24.5" rx="1.9" ry="2.1" fill={P.hair} />
+    {/* blush */}
+    <ellipse cx="22.5" cy="28.5" rx="2.4" ry="1.5" fill={P.blush} />
+    <ellipse cx="37.5" cy="28.5" rx="2.4" ry="1.5" fill={P.blush} />
+    {/* smile */}
+    <path d="M26 30.5 Q30 34 34 30.5" stroke={P.stroke} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+    {/* body */}
+    <path d="M12 62 Q14 48 30 48 Q46 48 48 62Z" fill={P.body} />
+  </svg>
+);
 
+// Male with cap (center hero character)
+const AvatarCap = ({ sz }: { sz: number }) => (
+  <svg width={sz} height={sz} viewBox="0 0 60 62" fill="none">
+    {/* cap crown */}
+    <ellipse cx="30" cy="16" rx="15.5" ry="11" fill={P.hair} />
+    {/* cap brim */}
+    <rect x="10" y="19" width="40" height="5.5" rx="2.7" fill={P.hair} />
+    {/* under-cap hair line */}
+    <ellipse cx="30" cy="22" rx="12.5" ry="6.5" fill={P.hair} />
+    {/* face */}
+    <ellipse cx="30" cy="31.5" rx="12.5" ry="13" fill={P.face} />
+    {/* ears */}
+    <ellipse cx="17.5" cy="31.5" rx="2.6" ry="3.2" fill={P.face} />
+    <ellipse cx="42.5" cy="31.5" rx="2.6" ry="3.2" fill={P.face} />
+    {/* eyes */}
+    <ellipse cx="25" cy="30" rx="1.9" ry="2.3" fill={P.hair} />
+    <ellipse cx="35" cy="30" rx="1.9" ry="2.3" fill={P.hair} />
+    {/* blush */}
+    <ellipse cx="22" cy="34.5" rx="2.5" ry="1.5" fill={P.blush} />
+    <ellipse cx="38" cy="34.5" rx="2.5" ry="1.5" fill={P.blush} />
+    {/* smile */}
+    <path d="M25.5 37 Q30 41 34.5 37" stroke={P.stroke} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+    {/* body */}
+    <path d="M12 62 Q14 49 30 49 Q46 49 48 62Z" fill={P.body} />
+  </svg>
+);
+
+// Plain male avatar
+const AvatarMale = ({ sz }: { sz: number }) => (
+  <svg width={sz} height={sz} viewBox="0 0 60 62" fill="none">
+    {/* hair */}
+    <ellipse cx="30" cy="18" rx="14" ry="9.5" fill={P.hair} />
+    {/* face */}
+    <ellipse cx="30" cy="29" rx="12.5" ry="12.5" fill={P.face} />
+    {/* ears */}
+    <ellipse cx="17.5" cy="29" rx="2.6" ry="3.2" fill={P.face} />
+    <ellipse cx="42.5" cy="29" rx="2.6" ry="3.2" fill={P.face} />
+    {/* eyes */}
+    <ellipse cx="25" cy="27.5" rx="1.9" ry="2.3" fill={P.hair} />
+    <ellipse cx="35" cy="27.5" rx="1.9" ry="2.3" fill={P.hair} />
+    {/* blush */}
+    <ellipse cx="22" cy="32" rx="2.5" ry="1.5" fill={P.blush} />
+    <ellipse cx="38" cy="32" rx="2.5" ry="1.5" fill={P.blush} />
+    {/* smile */}
+    <path d="M25.5 34.5 Q30 38 34.5 34.5" stroke={P.stroke} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+    {/* body */}
+    <path d="M12 62 Q14 48 30 48 Q46 48 48 62Z" fill={P.body2} />
+  </svg>
+);
+
+// ── Bar-line renderer (simulates resume text) ─────────────────────────────────
+const DARK  = '#2d3a56';
+const MID   = '#8ea0b8';
+const LIGHT = '#c8d4e0';
+
+type BarSpec =
+  | { type: 'bar';  color: string; width: string; height: number }
+  | { type: 'pair'; items: { color: string; width: string }[]; height: number }
+  | { type: 'gap';  px: number };
+
+function Bars({ specs }: { specs: BarSpec[] }) {
   return (
-    <div style={positionStyles}>
-      {/* Card shell */}
-      <div
-        style={{
-          width: isCenter ? 190 : 160,
-          backgroundColor: '#f0fdf8',
-          borderRadius: 20,
-          boxShadow: isCenter
-            ? '0 24px 60px rgba(99,102,241,0.22), 0 4px 16px rgba(0,0,0,0.10)'
-            : '0 8px 24px rgba(0,0,0,0.12)',
-          border: '1.5px solid rgba(255,255,255,0.9)',
-          overflow: 'hidden',
-          padding: '0 0 16px 0',
-        }}
-      >
-        {/* Avatar area */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            paddingTop: 20,
-            paddingBottom: 10,
-            background: 'linear-gradient(180deg, #e8fdf5 0%, #f0fdf8 100%)',
-          }}
-        >
-          <div
-            style={{
-              width: isCenter ? 54 : 44,
-              height: isCenter ? 54 : 44,
-              borderRadius: '50%',
-              background: `linear-gradient(135deg, ${card.color}55, ${card.color}cc)`,
-              border: `3px solid ${card.color}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: isCenter ? 18 : 14,
-              fontWeight: 800,
-              color: '#fff',
-              boxShadow: `0 4px 14px ${card.color}50`,
-              letterSpacing: 1,
-            }}
-          >
-            {card.initials}
-          </div>
-          <span
-            style={{
-              marginTop: 8,
-              fontSize: isCenter ? 12 : 10,
-              fontWeight: 700,
-              color: '#1e293b',
-            }}
-          >
-            {card.name}
-          </span>
-          <span
-            style={{
-              fontSize: isCenter ? 9 : 8,
-              color: '#6366f1',
-              fontWeight: 600,
-              marginTop: 2,
-            }}
-          >
-            {card.role}
-          </span>
-        </div>
-
-        {/* Content lines */}
-        <div style={{ padding: '10px 16px 4px' }}>
-          {card.lines.map((w, i) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+      {specs.map((s, i) => {
+        if (s.type === 'gap')
+          return <div key={i} style={{ height: s.px }} />;
+        if (s.type === 'bar')
+          return (
             <div
               key={i}
               style={{
-                height: 5,
+                height: s.height,
                 borderRadius: 99,
-                marginBottom: 5,
-                background:
-                  i % 3 === 1
-                    ? `linear-gradient(90deg, ${card.color}80, ${card.color}30)`
-                    : '#d4d8f0',
-                width: `${w}%`,
-                opacity: 0.75 + i * 0.04,
+                backgroundColor: s.color,
+                width: s.width,
               }}
             />
-          ))}
-        </div>
+          );
+        if (s.type === 'pair')
+          return (
+            <div key={i} style={{ display: 'flex', gap: 6 }}>
+              {s.items.map((it, j) => (
+                <div
+                  key={j}
+                  style={{
+                    height: s.height,
+                    borderRadius: 99,
+                    backgroundColor: it.color,
+                    width: it.width,
+                    flexShrink: 0,
+                  }}
+                />
+              ))}
+            </div>
+          );
+        return null;
+      })}
+    </div>
+  );
+}
 
-        {/* Tags */}
+// ── Bar data for center card ───────────────────────────────────────────────────
+const centerSpecs: BarSpec[] = [
+  { type: 'bar',  color: MID,   width: '65%', height: 5  },
+  { type: 'bar',  color: LIGHT, width: '42%', height: 4  },
+  { type: 'gap',  px: 7 },
+  { type: 'bar',  color: DARK,  width: '100%', height: 4 },
+  { type: 'bar',  color: DARK,  width: '90%',  height: 4 },
+  { type: 'bar',  color: DARK,  width: '76%',  height: 4 },
+  { type: 'gap',  px: 8 },
+  { type: 'pair', height: 4, items: [{ color: DARK, width: '46%' }, { color: DARK,  width: '44%' }] },
+  { type: 'pair', height: 4, items: [{ color: DARK, width: '46%' }, { color: LIGHT, width: '36%' }] },
+  { type: 'gap',  px: 8 },
+  { type: 'bar',  color: MID,   width: '55%', height: 5  },
+  { type: 'bar',  color: DARK,  width: '100%', height: 4 },
+  { type: 'bar',  color: DARK,  width: '84%',  height: 4 },
+  { type: 'gap',  px: 6 },
+  { type: 'pair', height: 4, items: [{ color: DARK,  width: '46%' }, { color: DARK,  width: '44%' }] },
+  { type: 'pair', height: 4, items: [{ color: LIGHT, width: '36%' }, { color: DARK,  width: '48%' }] },
+];
+
+// ── Bar data for side cards ────────────────────────────────────────────────────
+const sideSpecs: BarSpec[] = [
+  { type: 'bar',  color: MID,   width: '68%', height: 4  },
+  { type: 'bar',  color: LIGHT, width: '48%', height: 3  },
+  { type: 'gap',  px: 6 },
+  { type: 'bar',  color: DARK,  width: '100%', height: 3 },
+  { type: 'bar',  color: DARK,  width: '88%',  height: 3 },
+  { type: 'bar',  color: DARK,  width: '74%',  height: 3 },
+  { type: 'gap',  px: 7 },
+  { type: 'pair', height: 3, items: [{ color: DARK, width: '44%' }, { color: DARK,  width: '44%' }] },
+  { type: 'pair', height: 3, items: [{ color: DARK, width: '44%' }, { color: LIGHT, width: '36%' }] },
+  { type: 'gap',  px: 7 },
+  { type: 'bar',  color: DARK,  width: '100%', height: 3 },
+  { type: 'bar',  color: DARK,  width: '80%',  height: 3 },
+  { type: 'gap',  px: 6 },
+  { type: 'pair', height: 3, items: [{ color: DARK,  width: '44%' }, { color: LIGHT, width: '36%' }] },
+  { type: 'pair', height: 3, items: [{ color: DARK,  width: '44%' }, { color: DARK,  width: '44%' }] },
+];
+
+// ── Single resume card ────────────────────────────────────────────────────────
+interface CardProps {
+  avatar: React.ReactNode;
+  avatarRingPx: number;
+  widthPx: number;
+  specs: BarSpec[];
+  riseDelay: number;   // seconds
+  floatAnim: string;   // 'rcc-fc' | 'rcc-fs'
+  floatDuration: number;
+  floatDelay: number;
+  style?: React.CSSProperties;
+}
+
+function ResumeCard({
+  avatar, avatarRingPx, widthPx, specs,
+  riseDelay, floatAnim, floatDuration, floatDelay,
+  style = {},
+}: CardProps) {
+  const half = avatarRingPx / 2;
+
+  return (
+    <div
+      style={{
+        animation: `rcc-rise 0.65s cubic-bezier(0.34,1.56,0.64,1) ${riseDelay}s both,
+                    ${floatAnim} ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
+        ...style,
+      }}
+    >
+      {/* Card shell */}
+      <div
+        style={{
+          width: widthPx,
+          backgroundColor: '#ecf2f8',
+          borderRadius: 18,
+          paddingTop: half + 10,
+          paddingBottom: 18,
+          paddingLeft: 14,
+          paddingRight: 14,
+          position: 'relative',
+          boxShadow: widthPx > 170
+            ? '0 22px 54px rgba(45,58,86,0.18), 0 4px 16px rgba(45,58,86,0.10)'
+            : '0 8px 26px rgba(45,58,86,0.13)',
+        }}
+      >
+        {/* Avatar ring centered at card top */}
         <div
           style={{
+            position: 'absolute',
+            top: -half,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: avatarRingPx,
+            height: avatarRingPx,
+            borderRadius: '50%',
+            backgroundColor: '#fff',
+            boxShadow: '0 4px 16px rgba(45,58,86,0.14)',
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: 4,
-            padding: '6px 12px 0',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
           }}
         >
-          {card.tags.map((tag) => (
-            <span
-              key={tag}
-              style={{
-                background: `${card.color}22`,
-                color: card.color,
-                borderRadius: 99,
-                fontSize: 7,
-                fontWeight: 700,
-                padding: '2px 7px',
-                letterSpacing: 0.3,
-              }}
-            >
-              {tag}
-            </span>
-          ))}
+          {avatar}
         </div>
+
+        {/* Bar content */}
+        <Bars specs={specs} />
       </div>
     </div>
   );
-};
+}
 
-// ── Main Carousel ──────────────────────────────────────────────────────────────
+// ── Main exported component ───────────────────────────────────────────────────
 export const ResumeCardCarousel: React.FC = () => {
-  const [centerIdx, setCenterIdx] = useState(1);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => { injectKeyframes(); }, []);
 
-  const startRotation = () => {
-    intervalRef.current = setInterval(() => {
-      setCenterIdx((prev) => (prev + 1) % cards.length);
-    }, 2800);
-  };
+  /* ---- measurements ---- */
+  const cW  = 188;  // center card width
+  const sW  = 148;  // side card width
+  const cAv = 82;   // center avatar ring diameter
+  const sAv = 60;   // side avatar ring diameter
 
-  useEffect(() => {
-    startRotation();
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
-  // Derive left / right indices from centerIdx
-  const leftIdx = (centerIdx - 1 + cards.length) % cards.length;
-  const rightIdx = (centerIdx + 1) % cards.length;
+  /* ---- container sizing ---- */
+  // We need: sW + overlap(≈30) + cW + overlap(≈30) + sW = ~454 → 460px
+  // Height: tallest item (center card with avatar) ≈ 320 + 41 avatar overflow = ~360
+  const W = 460;
+  const H = 380;
 
   return (
     <div
       style={{
         position: 'relative',
-        width: '100%',
-        height: 300,
-        perspective: 900,
+        width: W,
+        height: H,
+        maxWidth: '100%',
       }}
-      onMouseEnter={() => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-      }}
-      onMouseLeave={startRotation}
     >
-      <MiniResumeCard card={cards[leftIdx]} position="left" />
-      <MiniResumeCard card={cards[centerIdx]} position="center" />
-      <MiniResumeCard card={cards[rightIdx]} position="right" />
-
-      {/* Dots indicator */}
+      {/* ── LEFT card ── */}
       <div
         style={{
           position: 'absolute',
-          bottom: -16,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          gap: 6,
+          left: 0,
+          bottom: 0,
+          zIndex: 5,
+          transformOrigin: 'bottom center',
+          transform: 'rotate(-2deg)',
         }}
       >
-        {cards.map((_, i) => (
-          <button
-            key={i}
-            aria-label={`Go to card ${i + 1}`}
-            onClick={() => {
-              if (intervalRef.current) clearInterval(intervalRef.current);
-              setCenterIdx(i);
-              startRotation();
-            }}
-            style={{
-              width: i === centerIdx ? 20 : 7,
-              height: 7,
-              borderRadius: 99,
-              border: 'none',
-              cursor: 'pointer',
-              background:
-                i === centerIdx
-                  ? 'linear-gradient(90deg, #6366f1, #a855f7)'
-                  : '#c7d2fe',
-              transition: 'all 0.4s ease',
-              padding: 0,
-            }}
-          />
-        ))}
+        <ResumeCard
+          avatar={<AvatarFemale sz={sAv - 8} />}
+          avatarRingPx={sAv}
+          widthPx={sW}
+          specs={sideSpecs}
+          riseDelay={0.0}
+          floatAnim="rcc-fs"
+          floatDuration={3.9}
+          floatDelay={0.7}
+        />
+      </div>
+
+      {/* ── CENTER card ── */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: 0,
+          transform: 'translateX(-50%)',
+          zIndex: 10,
+        }}
+      >
+        <ResumeCard
+          avatar={<AvatarCap sz={cAv - 10} />}
+          avatarRingPx={cAv}
+          widthPx={cW}
+          specs={centerSpecs}
+          riseDelay={0.18}
+          floatAnim="rcc-fc"
+          floatDuration={3.6}
+          floatDelay={0.85}
+        />
+      </div>
+
+      {/* ── RIGHT card ── */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+          zIndex: 5,
+          transformOrigin: 'bottom center',
+          transform: 'rotate(2deg)',
+        }}
+      >
+        <ResumeCard
+          avatar={<AvatarMale sz={sAv - 8} />}
+          avatarRingPx={sAv}
+          widthPx={sW}
+          specs={sideSpecs}
+          riseDelay={0.08}
+          floatAnim="rcc-fs"
+          floatDuration={3.9}
+          floatDelay={1.1}
+        />
       </div>
     </div>
   );
